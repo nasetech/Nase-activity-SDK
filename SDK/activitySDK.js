@@ -14,10 +14,15 @@
       }
     },
     /**
-    * 用户领取优惠券
-    * @param  {int}       discountId  优惠券的id，需要通过获取post详情中的meta获取
-    * @param  {string}    token
-    */
+     * #########################
+     * #### 领券活动相关API ######
+     * #########################
+     */
+    /**
+     * 用户领取优惠券
+     * @param  {int}       discountId  优惠券的id，需要通过获取post详情中的meta获取
+     * @param  {string}    token
+     */
     userGetCoupon: function(discountId, token) {
       console.log('领取ID')
       if (!discountId) {
@@ -40,6 +45,11 @@
       });
     },
     /**
+     * #########################
+     * #### 用户签到相关API ######
+     * #########################
+     */
+    /**
      * 用户签到
      * @param  {int}       postId  当前签到活动的id
      * @param  {string}    token
@@ -51,7 +61,7 @@
         return toast.show('id不存在');
       }
       ajax({
-        url: host + '/post/' + postId + '/signin',
+        url: __CONFIG__.host + '/post/' + postId + '/signin',
         method: "PUT",
         headers: {
           'Authorization': 'TOKEN ' + token
@@ -106,7 +116,7 @@
         return toast.show('id不存在');
       }
       ajax({
-        url: host + '/post/' + postId + '?needEditor=true',
+        url: __CONFIG__.host + '/post/' + postId + '?needEditor=true',
         method: "GET",
         headers: {
           'Authorization': 'TOKEN ' + token
@@ -123,7 +133,36 @@
         console.log('初始化返回结果err', err);
       });
     },
-
+    /**
+    * #########################
+    * #### 抽奖活动相关API ######
+    * #########################
+    */
+    /**
+     * 用户抽奖
+     * @param  {int}       postId  当前抽奖活动的id
+     * @param  {string}    token
+     * @param   {function}  callback    自定义抽奖成功后的回调
+     */
+    userLottery: function(postId, token, callback) {
+      if (!postId) {
+        return toast.show('id不存在');
+      }
+      ajax({
+        url: host + '/post/' + postId + '/lottery?joinCode=5',
+        method: "GET",
+        headers: {
+          'Authorization': 'TOKEN ' + token
+        }
+      })
+      .then(function(res) {
+        console.log('返回结果res', res)
+        callback(res)
+      })
+      .catch(function(err) {
+        console.log('返回结果err', err);
+      });
+    },
   }
   this.nase = __CORE__;
 });
