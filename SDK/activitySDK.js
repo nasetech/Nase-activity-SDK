@@ -3,14 +3,30 @@
 })(window, function() {
   var __MODULES__ = {};
   var __CONFIG__ = {
-    host: "https://hzdjy.nase.tech"
+    host: "https://hzdjy.nase.tech",
+    sid: '',
+    token: '',
   };
   var __CORE__ = {
+    // 初始化
     init: function(options) {
-      // 初始化
       if (__CONFIG__.host !== options.host) {
         console.log("naseSDK host", this.host);
         __CONFIG__.host = options.host;
+      }
+      if (typeof getQueryStringByName !== 'function') return toast.show('未检测到 query获取 函数！') 
+      let sid = getQueryStringByName(sid)
+      let token = getQueryStringByName(token)
+      console.log('是否获取到sid', sid)
+      if (sid === '') {
+        return toast.show('未获取到 sid!')
+      } else {
+        __CONFIG__.sid = sid
+      }
+      if (token === '') {
+        return toast.show('未获取到 token!')
+      } else {
+        __CONFIG__.token = token
       }
     },
     /**
@@ -44,9 +60,8 @@
     /**
      * 用户领取优惠券
      * @param  {int}       discountId  优惠券的id，需要通过获取post详情中的meta获取
-     * @param  {string}    token
      */
-    userGetCoupon: function(discountId, token) {
+    userGetCoupon: function(discountId) {
       console.log("领取ID", discountId);
       if (!discountId) {
         return toast.show("优惠券id不存在");
@@ -55,7 +70,8 @@
         url: __CONFIG__.host + "/discount/coupon/claim",
         method: "POST",
         headers: {
-          Authorization: "TOKEN " + token
+          Authorization: "TOKEN " + __CONFIG__.token,
+          sid: __CONFIG__.sid
         },
         data: { discountId: discountId }
       })
@@ -75,11 +91,10 @@
     /**
      * 用户签到
      * @param  {int}       postId  当前签到活动的id
-     * @param  {string}    token
      * @param   {function}  signinSuccess    自定义签到成功后的回调
      * @param   {function}  signinRepeat     签到重复后的回调
      */
-    signinActive: function(postId, token, signinSuccess, signinRepeat) {
+    signinActive: function(postId, signinSuccess, signinRepeat) {
       if (!postId) {
         return toast.show("id不存在");
       }
@@ -87,7 +102,8 @@
         url: __CONFIG__.host + "/post/" + postId + "/signin",
         method: "PUT",
         headers: {
-          Authorization: "TOKEN " + token
+          Authorization: "TOKEN " + __CONFIG__.token,
+          sid: __CONFIG__.sid
         }
       })
         .then(function(res) {
@@ -132,7 +148,6 @@
     /**
      * 获取活动页面背景图片
      * @param   {int}       postId    活动的postId
-     * @param   {string}    token
      * @param   {function}  callback  获取图片成功后的自定义回调
      */
     fetchBgImg(postId, token, callback) {
@@ -143,7 +158,8 @@
         url: __CONFIG__.host + "/post/" + postId + "?needEditor=true",
         method: "GET",
         headers: {
-          Authorization: "TOKEN " + token
+          Authorization: "TOKEN " + __CONFIG__.token,
+          sid: __CONFIG__.sid
         }
       })
         .then(function(res) {
@@ -165,7 +181,6 @@
     /**
      * 用户抽奖
      * @param  {int}       postId  当前抽奖活动的id
-     * @param  {string}    token
      * @param   {function}  callback    自定义抽奖成功后的回调
      */
     userLottery: function(postId, token, callback) {
@@ -176,7 +191,8 @@
         url: host + "/post/" + postId + "/lottery?joinCode=5",
         method: "GET",
         headers: {
-          Authorization: "TOKEN " + token
+          Authorization: "TOKEN " + __CONFIG__.token,
+          sid: __CONFIG__.sid
         }
       })
         .then(function(res) {
@@ -193,12 +209,13 @@
      * #########################
      */
 
-    getVotePostInfo: function(postId, token, callback) {
+    getVotePostInfo: function(postId, callback) {
       ajax({
         url: __CONFIG__.host + "/api/v0/post/" + postId,
         method: "GET",
         headers: {
-          Authorization: "TOKEN " + token
+          Authorization: "TOKEN " + __CONFIG__.token,
+          sid: __CONFIG__.sid
         }
       })
         .then(function(res) {
@@ -220,12 +237,35 @@
           console.log("返回错误结果err", err);
         });
     },
-    getVoteInfo: function(id, token, callback) {
+    getVoteInfo: function(id, callback) {
       ajax({
         url: __CONFIG__.host + "/tp/api/v0/vote/" + id,
         method: "GET",
         headers: {
-          Authorization: "TOKEN " + token
+          Authorization: "TOKEN " + __CONFIG__.token,
+          sid: __CONFIG__.sid
+        }
+      })
+        .then(function(res) {
+          console.log("返回结果res", res);
+        })
+        .catch(function(err) {
+          console.log("返回错误结果err", err);
+        });
+    },
+    /**
+     * 投票
+     * @param   {int}       id    需要的ID是 meta.voteId
+     * @param   {string}    token
+     * @param   {function}  callback  
+     */
+    putVoteInfo: function(id, callback) {
+      ajax({
+        url: __CONFIG__.host + "/tp/api/v0/vote/" + id,
+        method: "PUT",
+        headers: {
+          Authorization: "TOKEN " + __CONFIG__.token,
+          sid: __CONFIG__.sid
         }
       })
         .then(function(res) {
