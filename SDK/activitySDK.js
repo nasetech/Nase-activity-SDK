@@ -192,12 +192,7 @@
      * #### 投票活动相关API ######
      * #########################
      */
-    /**
-     * 通过活动编号(postId)获取活动id
-     * @param  {int}       postId  当前抽奖活动的活动编号 
-     * @param  {string}    token
-     * @param   {function}  callback 获取成功后的回调
-     */
+
     getVotePostInfo: function(postId, token, callback) {
       ajax({
         url: __CONFIG__.host + "/api/v0/post/" + postId,
@@ -208,6 +203,10 @@
       })
         .then(function(res) {
           console.log("返回结果res", res);
+          home.show({
+            imgCDN: imgCDN,
+            res: res
+          });
           // 返回投票活动的活动 id
           // callback && callback(res.data.metas.find(item=>item.key==="activityId").value)
           callback &&
@@ -216,6 +215,21 @@
                 return item.key === "activityId";
               }).value
             );
+        })
+        .catch(function(err) {
+          console.log("返回错误结果err", err);
+        });
+    },
+    getVoteInfo: function(id, token, callback) {
+      ajax({
+        url: __CONFIG__.host + "/tp/api/v0/vote/" + id,
+        method: "GET",
+        headers: {
+          Authorization: "TOKEN " + token
+        }
+      })
+        .then(function(res) {
+          console.log("返回结果res", res);
         })
         .catch(function(err) {
           console.log("返回错误结果err", err);
