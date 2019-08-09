@@ -8,9 +8,9 @@
   var __CORE__ = {
     init: function(options) {
       // 初始化
-      if(options.host !== __CONFIG__.host) {
+      if(__CONFIG__.host !== options.host ) {
         console.log('naseSDK host', this.host)
-        options.host = __CONFIG__.host
+        __CONFIG__.host = options.host 
       }
     },
     /**
