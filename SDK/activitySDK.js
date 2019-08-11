@@ -4,8 +4,8 @@
   var __MODULES__ = {};
   var __CONFIG__ = {
     host: "https://hzdjy.nase.tech",
-    sid: '',
-    token: '',
+    sid: "",
+    token: ""
   };
   var __CORE__ = {
     // 初始化
@@ -14,19 +14,20 @@
         console.log("naseSDK host", this.host);
         __CONFIG__.host = options.host;
       }
-      if (typeof getQueryStringByName !== 'function') return toast.show('未检测到 query获取 函数！') 
-      let sid = getQueryStringByName(sid)
-      let token = getQueryStringByName(token)
-      console.log('是否获取到sid', sid)
-      if (sid === '') {
-        return toast.show('未获取到 sid!')
+      if (typeof getQueryStringByName !== "function")
+        return toast.show("未检测到 query获取 函数！");
+      let sid = getQueryStringByName(sid);
+      let token = getQueryStringByName(token);
+      console.log("是否获取到sid", sid);
+      if (sid === "") {
+        return toast.show("未获取到 sid!");
       } else {
-        __CONFIG__.sid = sid
+        __CONFIG__.sid = sid;
       }
-      if (token === '') {
-        return toast.show('未获取到 token!')
+      if (token === "") {
+        return toast.show("未获取到 token!");
       } else {
-        __CONFIG__.token = token
+        __CONFIG__.token = token;
       }
     },
     /**
@@ -208,7 +209,11 @@
      * #### 投票活动相关API ######
      * #########################
      */
-
+    /**
+     * 根据活动编号获取voteId
+     * @param  {int}       postId  当前抽奖活动的id
+     * @param   {function}  callback    获取成功后的回调
+     */
     getVotePostInfo: function(postId, callback) {
       ajax({
         url: __CONFIG__.host + "/api/v0/post/" + postId,
@@ -237,6 +242,12 @@
           console.log("返回错误结果err", err);
         });
     },
+    /**
+     * 获取投票活动的详细信息
+     * @param  {int}        id          投票活动的 id （非postId)
+     * @param  {string}     token
+     * @param   {function}  callback    获取成功后的回调
+     */
     getVoteInfo: function(id, callback) {
       ajax({
         url: __CONFIG__.host + "/tp/api/v0/vote/" + id,
@@ -248,15 +259,15 @@
       })
         .then(function(res) {
           console.log("返回结果res", res);
+          callback(res.data.data.options, res.data.data.optionLimitation);
         })
         .catch(function(err) {
           console.log("返回错误结果err", err);
         });
-    },
+    }
     /**
      * 投票
      * @param   {int}       id    需要的ID是 meta.voteId
-     * @param   {string}    token
      * @param   {function}  callback  
      */
     putVoteInfo: function(id, callback) {
