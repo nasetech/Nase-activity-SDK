@@ -16,8 +16,8 @@
       }
       if (typeof getQueryStringByName !== "function")
         return toast.show("未检测到 query获取 函数！");
-      let sid = getQueryStringByName(sid);
-      let token = getQueryStringByName(token);
+      var sid = getQueryStringByName(sid);
+      var token = getQueryStringByName(token);
       console.log("是否获取到sid", sid);
       if (sid === "") {
         return toast.show("未获取到 sid!");
@@ -123,7 +123,7 @@
      * @param   {function}  signinRepeat     签到重复后的回调
      */
     handleResponse: function(res, signinSuccess, signinRepeat) {
-      let resCode = res.code;
+      var resCode = res.code;
       if (resCode === 0) {
         modal.open({
           title: "签到成功",
@@ -264,7 +264,7 @@
         .catch(function(err) {
           console.log("返回错误结果err", err);
         });
-    }
+    },
     /**
      * 投票
      * @param   {int}       id    需要的ID是 meta.voteId
