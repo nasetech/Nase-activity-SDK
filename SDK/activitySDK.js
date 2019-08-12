@@ -19,6 +19,13 @@
       token === "" ? toast.show("未获取到 token!") : null;
     },
     /**
+     * 设置网页的 title
+     * @param {string}  title  活动标题
+     */
+    setPageTitle: function(title) {
+      document.title = title;
+    },
+    /**
      * #########################
      * #### 领券活动相关API ######
      * #########################
@@ -139,7 +146,7 @@
      * @param   {int}       postId    活动的postId
      * @param   {function}  callback  获取图片成功后的自定义回调
      */
-    fetchBgImg(postId, token, callback) {
+    fetchBgImg(postId, callback) {
       if (!postId) {
         return toast.show("id不存在");
       }
@@ -153,6 +160,7 @@
       })
         .then(function(res) {
           console.log("初始化返回结果res", res);
+          window.nase.setPageTitle(res.data.title)
           home.show({
             imgCDN: imgCDN,
             res: res
@@ -213,6 +221,7 @@
       })
         .then(function(res) {
           console.log("返回结果res", res);
+          window.nase.setPageTitle(res.data.title)
           home.show({
             imgCDN: imgCDN,
             res: res
