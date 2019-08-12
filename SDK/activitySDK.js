@@ -34,24 +34,25 @@
      * 领券需要获取到活动信息
      * @param {string} postId
      */
-    getCouponInfo: function(postId) {
-      return new Promise((resolve, reject) => {
-        ajax({
-          url: __CONFIG__.host + "/post/" + postId,
-          method: "GET"
-        })
-          .then(function(res) {
-            console.log("返回结果res", res);
-            // 返回优惠券的 id
-            resolve(
-              res.data.metas.find(item => item.key === "discountId").value
+    getCouponInfo: function(postId, callback) {
+      ajax({
+        url: __CONFIG__.host + "/post/" + postId,
+        method: "GET"
+      })
+        .then(function(res) {
+          console.log("返回结果res", res);
+          // 返回优惠券的 id
+          // callback && callback(res.data.metas.find(item => item.key === "discountId").value);
+          callback &&
+            callback(
+              res.data.metas.find(function(item) {
+                return item.key === "discountId";
+              }).value
             );
-          })
-          .catch(function(err) {
-            console.log("返回错误结果err", err);
-            reject(err);
-          });
-      });
+        })
+        .catch(function(err) {
+          console.log("返回错误结果err", err);
+        });
     },
     /**
      * 用户领取优惠券
@@ -160,7 +161,7 @@
       })
         .then(function(res) {
           console.log("初始化返回结果res", res);
-          window.nase.setPageTitle(res.data.title)
+          window.nase.setPageTitle(res.data.title);
           home.show({
             imgCDN: imgCDN,
             res: res
@@ -221,7 +222,7 @@
       })
         .then(function(res) {
           console.log("返回结果res", res);
-          window.nase.setPageTitle(res.data.title)
+          window.nase.setPageTitle(res.data.title);
           home.show({
             imgCDN: imgCDN,
             res: res
