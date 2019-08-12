@@ -11,24 +11,12 @@
     // 初始化
     init: function(options) {
       if (__CONFIG__.host !== options.host) {
-        console.log("naseSDK host", this.host);
         __CONFIG__.host = options.host;
       }
-      if (typeof getQueryStringByName !== "function")
-        return toast.show("未检测到 query获取 函数！");
-      var sid = getQueryStringByName(sid);
-      var token = getQueryStringByName(token);
-      console.log("是否获取到sid", sid);
-      if (sid === "") {
-        return toast.show("未获取到 sid!");
-      } else {
-        __CONFIG__.sid = sid;
-      }
-      if (token === "") {
-        return toast.show("未获取到 token!");
-      } else {
-        __CONFIG__.token = token;
-      }
+      __CONFIG__.token = options.token;
+      __CONFIG__.sid = options.sid;
+      sid === "" ? toast.show("未获取到 sid!") : null;
+      token === "" ? toast.show("未获取到 token!") : null;
     },
     /**
      * #########################
@@ -231,12 +219,11 @@
           });
           // 返回投票活动的活动 id
           // callback && callback(res.data.metas.find(item=>item.key==="activityId").value)
-          callback &&
-            callback(
-              res.data.metas.find(function(item) {
-                return item.key === "activityId";
-              }).value
-            );
+          callback(
+            res.data.metas.find(function(item) {
+              return item.key === "activityId";
+            }).value
+          );
         })
         .catch(function(err) {
           console.log("返回错误结果err", err);
@@ -259,7 +246,8 @@
       })
         .then(function(res) {
           console.log("返回结果res", res);
-          callback(res.data.data.options, res.data.data.optionLimitation);
+          callback &&
+            callback(res.data.data.options, res.data.data.optionLimitation);
         })
         .catch(function(err) {
           console.log("返回错误结果err", err);
@@ -267,20 +255,46 @@
     },
     /**
      * 投票
-     * @param   {int}       id    需要的ID是 meta.voteId
-     * @param   {function}  callback  
+     * @param   {int}       id        需要的ID是 meta.voteId
+     * @param   {function}  callback
      */
-    putVoteInfo: function(id, callback) {
+    vote: function(options, voteId, voteSuccess, voteRepeat) {
       ajax({
-        url: __CONFIG__.host + "/tp/api/v0/vote/" + id,
-        method: "PUT",
+        url: __CONFIG__.host + "/tp/api/v0/vote/to",
+        method: "POST",
         headers: {
           Authorization: "TOKEN " + __CONFIG__.token,
           sid: __CONFIG__.sid
+        },
+        data: {
+          voteId: voteId,
+          optionId: options
         }
       })
         .then(function(res) {
           console.log("返回结果res", res);
+          if (res.code === 0) {
+            modal.open({
+              title: "投票成功",
+              content: "您已投票成功!",
+              onOk: function() {
+                voteSuccess();
+              }
+            });
+          } else if (res.code === 400) {
+            modal.open({
+              title: "投票失败",
+              content: "您已到达投票上限!",
+              onOk: function() {
+                voteRepeat();
+              }
+            });
+          } else if (resCode === 401) {
+            toast.show("登录失败");
+          } else {
+            toast.show("投票失败");
+          }
+          window.nase.getVoteInfo(voteId);
         })
         .catch(function(err) {
           console.log("返回错误结果err", err);
