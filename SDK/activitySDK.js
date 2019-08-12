@@ -57,8 +57,9 @@
     /**
      * 用户领取优惠券
      * @param  {int}       discountId  优惠券的id，需要通过获取post详情中的meta获取
+     * @param  {int}       postId      活动的id
      */
-    userGetCoupon: function(discountId) {
+    userGetCoupon: function(discountId, postId) {
       console.log("领取ID", discountId);
       if (!discountId) {
         return toast.show("优惠券id不存在");
@@ -74,6 +75,7 @@
       })
         .then(function(res) {
           console.log("返回结果res", res);
+          window.nase.joinActivity(postId);
           return toast.show("成功领取优惠券");
         })
         .catch(function(err) {
@@ -105,7 +107,8 @@
       })
         .then(function(res) {
           console.log("返回结果res", res);
-          window.nase.handleResponse(res, signinSuccess, signinRepeat);
+          window.nase.joinActivity(postId);
+          window.nase.handleResponse(res, signinSuccess, signinRepeat, "签到");
         })
         .catch(function(err) {
           console.log("返回结果err", err);
@@ -113,33 +116,34 @@
         });
     },
     /**
-     * 用户签到后返回的回调 (无需调用，已在用户签到函数中使用)
-     * @param   {obj}       res              调用签到API返回的结果
-     * @param   {function}  signinSuccess    自定义签到成功后的回调
-     * @param   {function}  signinRepeat     签到重复后的回调
+     * 用户操作后返回的回调
+     * @param   {obj}       res                调用操作API返回的结果
+     * @param   {function}  activitySuccess    自定义操作成功后的回调
+     * @param   {function}  activityRepeat     操作重复后的回调
+     * @param   {string}    activity           用户的操作
      */
-    handleResponse: function(res, signinSuccess, signinRepeat) {
+    handleResponse: function(res, activitySuccess, activityRepeat, activity) {
       var resCode = res.code;
       if (resCode === 0) {
         modal.open({
-          title: "签到成功",
-          content: "您已签到成功",
+          title: activity + "成功",
+          content: "您已" + activity + "成功",
           onOk: function() {
-            signinSuccess();
+            activitySuccess();
           }
         });
       } else if (resCode === 400) {
         modal.open({
           title: "温馨提示",
-          content: "您已签到，请勿重复签到",
+          content: "您已" + activity + "，请勿重复" + activity,
           onOk: function() {
-            signinRepeat();
+            activityRepeat();
           }
         });
       } else if (resCode === 401) {
         toast.show("登录失败");
       } else {
-        toast.show("签到失败");
+        toast.show(activity + "失败");
       }
     },
     /**
@@ -268,7 +272,7 @@
      * @param   {int}       id        需要的ID是 meta.voteId
      * @param   {function}  callback
      */
-    vote: function(options, voteId, voteSuccess, voteRepeat) {
+    vote: function(postId, options, voteId, voteSuccess, voteRepeat) {
       ajax({
         url: __CONFIG__.host + "/tp/api/v0/vote/to",
         method: "POST",
@@ -283,28 +287,30 @@
       })
         .then(function(res) {
           console.log("返回结果res", res);
-          if (res.code === 0) {
-            modal.open({
-              title: "投票成功",
-              content: "您已投票成功!",
-              onOk: function() {
-                voteSuccess();
-              }
-            });
-          } else if (res.code === 400) {
-            modal.open({
-              title: "投票失败",
-              content: "您已到达投票上限!",
-              onOk: function() {
-                voteRepeat();
-              }
-            });
-          } else if (resCode === 401) {
-            toast.show("登录失败");
-          } else {
-            toast.show("投票失败");
-          }
-          window.nase.getVoteInfo(voteId);
+          window.name.joinActivity(postId);
+          window.nase.handleResponse(res, voteSuccess, voteRepeat, "投票");
+        })
+        .catch(function(err) {
+          console.log("返回错误结果err", err);
+        });
+    },
+    /**
+     * #########################
+     * #### 用户参与活动相关API ######
+     * #########################
+     */
+    joinActivity: function(postId) {
+      ajax({
+        url: __CONFIG__.host + "/post/" + postId + "/join",
+        method: "PUT",
+        headers: {
+          Authorization: "TOKEN " + __CONFIG__.token,
+          sid: __CONFIG__.sid
+        },
+        data: { join: true }
+      })
+        .then(function(res) {
+          console.log("join 返回结果res", res);
         })
         .catch(function(err) {
           console.log("返回错误结果err", err);
