@@ -35,9 +35,9 @@
      * @param {string} postId
      * @param {string} host
      */
-    getCouponInfo: function(postId, callback, host='') {
-      if (host === '') {
-        host = __CONFIG__.host
+    getCouponInfo: function(postId, callback, host = "") {
+      if (host === "") {
+        host = __CONFIG__.host;
       }
       ajax({
         url: host + "/post/" + postId,
@@ -64,10 +64,10 @@
      * @param  {int}       postId      活动的id
      * @param {string}     host
      */
-    userGetCoupon: function(discountId, postId, host='') {
+    userGetCoupon: function(discountId, postId, host = "") {
       console.log("领取ID", discountId);
-      if (host === '') {
-        host = __CONFIG__.host
+      if (host === "") {
+        host = __CONFIG__.host;
       }
       if (!discountId) {
         return toast.show("优惠券id不存在");
@@ -102,9 +102,9 @@
      * @param   {function}  signinRepeat     签到重复后的回调
      * @param   {string}    host
      */
-    signinActive: function(postId, signinSuccess, signinRepeat, host='') {
-      if (host === '') {
-        host = __CONFIG__.host
+    signinActive: function(postId, signinSuccess, signinRepeat, host = "") {
+      if (host === "") {
+        host = __CONFIG__.host;
       }
       if (!postId) {
         return toast.show("id不存在");
@@ -141,7 +141,7 @@
           title: activity + "成功",
           content: "您已" + activity + "成功",
           onOk: function() {
-            activitySuccess();
+            activitySuccess && activitySuccess();
           }
         });
       } else if (resCode === 400) {
@@ -149,7 +149,7 @@
           title: "温馨提示",
           content: "您已" + activity + "，请勿重复" + activity,
           onOk: function() {
-            activityRepeat();
+            activityRepeat && activityRepeat();
           }
         });
       } else if (resCode === 401) {
@@ -164,9 +164,9 @@
      * @param   {function}  callback  获取图片成功后的自定义回调
      * @param   {string}    host
      */
-    fetchBgImg(postId, callback, host='') {
-      if (host === '') {
-        host = __CONFIG__.host
+    fetchBgImg(postId, callback, host = "") {
+      if (host === "") {
+        host = __CONFIG__.host;
       }
       if (!postId) {
         return toast.show("id不存在");
@@ -180,7 +180,7 @@
         }
       })
         .then(function(res) {
-          console.log("初始化返回结果res", res);
+          console.log("初始化bg返回结果res", res);
           window.nase.setPageTitle(res.data.title);
           home.show({
             imgCDN: imgCDN,
@@ -188,7 +188,7 @@
           });
         })
         .catch(function(err) {
-          console.log("初始化返回结果err", err);
+          console.log("初始化bg返回结果err", err);
         });
     },
     /**
@@ -197,14 +197,47 @@
      * #########################
      */
     /**
+     * 获取抽奖活动信息
+     * @param  {int}       postId  当前抽奖活动的id
+     * @param   {function}  callback    自定义抽奖成功后的回调
+     */
+    getLotteryInfo: function(postId, callback, host = "") {
+      if (host === "") {
+        host = __CONFIG__.host;
+      }
+      if (!postId) {
+        return toast.show("id不存在");
+      }
+      ajax({
+        url: host + "/post/" + postId,
+        method: "GET",
+        headers: {
+          Authorization: "TOKEN " + __CONFIG__.token,
+          sid: __CONFIG__.sid
+        }
+      })
+        .then(function(res) {
+          console.log("获取抽奖活动信息返回结果res", res);
+          callback &&
+            callback(
+              res.data.metas.find(function(item) {
+                return item.key === "prizeOptions";
+              })
+            );
+        })
+        .catch(function(err) {
+          console.log("获取抽奖活动信息返回结果err", err);
+        });
+    },
+    /**
      * 用户抽奖
      * @param   {int}       postId  当前抽奖活动的id
      * @param   {function}  callback    自定义抽奖成功后的回调
      * @param   {string}    host
      */
-    userLottery: function(postId, token, callback, host='') {
-      if (host === '') {
-        host = __CONFIG__.host
+    lottery: function(postId, lotterySuccess, lotteryRepeat, host = "") {
+      if (host === "") {
+        host = __CONFIG__.host;
       }
       if (!postId) {
         return toast.show("id不存在");
@@ -218,12 +251,53 @@
         }
       })
         .then(function(res) {
-          console.log("返回结果res", res);
-          callback(res);
+          console.log("抽奖返回结果res", res);
+          window.nase.joinActivity(postId);
+          window.nase.handleLotteryResponse(res, lotterySuccess, lotteryRepeat);
         })
         .catch(function(err) {
-          console.log("返回结果err", err);
+          console.log("抽奖返回结果err", err);
         });
+    },
+    handleLotteryResponse: function(res, lotterySuccess, lotteryRepeat) {
+      var resCode = res.code;
+      var resData = res.data;
+      if (resCode === 0) {
+        if (resData.winning) {
+          modal.open({
+            titile: "抽奖成功",
+            content:
+              "恭喜您，获得了" +
+              resData.awards +
+              ", 奖品：" +
+              resData.prize +
+              "。",
+            onOk: function() {
+              lotterySuccess && lotterySuccess();
+            }
+          });
+        } else {
+          modal.open({
+            titile: "抽奖成功",
+            content: "很遗憾，您没有中奖。",
+            onOk: function() {
+              lotterySuccess && lotterySuccess();
+            }
+          });
+        }
+      } else if (resCode === 471) {
+        modal.open({
+          titile: "抽奖失败",
+          content: "您已参与抽奖，请勿重复参与抽奖。",
+          onOk: function() {
+            lotteryRepeat && lotteryRepeat();
+          }
+        });
+      } else if (resCode === 401) {
+        toast.show("登录失败");
+      } else {
+        toast.show("抽奖失败");
+      }
     },
     /**
      * #########################
@@ -232,13 +306,13 @@
      */
     /**
      * 根据活动编号获取voteId
-     * @param   {int}       postId  当前抽奖活动的id
+     * @param   {int}       postId      当前投票活动的id
      * @param   {function}  callback    获取成功后的回调
      * @param   {string}    host
      */
-    getVotePostInfo: function(postId, callback, host='') {
-      if (host === '') {
-        host = __CONFIG__.host
+    getVotePostInfo: function(postId, callback, host = "") {
+      if (host === "") {
+        host = __CONFIG__.host;
       }
       ajax({
         url: host + "/api/v0/post/" + postId,
@@ -274,9 +348,9 @@
      * @param   {function}  callback    获取成功后的回调
      * @param   {string}    host
      */
-    getVoteInfo: function(id, callback, host='') {
-      if (host === '') {
-        host = __CONFIG__.host
+    getVoteInfo: function(id, callback, host = "") {
+      if (host === "") {
+        host = __CONFIG__.host;
       }
       ajax({
         url: host + "/tp/api/v0/vote/" + id,
@@ -301,9 +375,16 @@
      * @param   {function}  callback
      * @param   {string}    host
      */
-    vote: function(postId, options, voteId, voteSuccess, voteRepeat, host='') {
-      if (host === '') {
-        host = __CONFIG__.host
+    vote: function(
+      postId,
+      options,
+      voteId,
+      voteSuccess,
+      voteRepeat,
+      host = ""
+    ) {
+      if (host === "") {
+        host = __CONFIG__.host;
       }
       ajax({
         url: host + "/tp/api/v0/vote/to",
@@ -331,9 +412,9 @@
      * #### 用户参与活动相关API ######
      * #########################
      */
-    joinActivity: function(postId, host='') {
-      if (host === '') {
-        host = __CONFIG__.host
+    joinActivity: function(postId, host = "") {
+      if (host === "") {
+        host = __CONFIG__.host;
       }
       ajax({
         url: host + "/post/" + postId + "/join",
