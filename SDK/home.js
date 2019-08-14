@@ -54,10 +54,8 @@
       console.log("没有配置背景图片");
     }
     var title = (options && options.res.data.title) || "活动标题";
-    var content = (options && options.res.data.content) || "";
 
     this.$title.innerHTML = title;
-    this.$content.innerHTML = content;
     console.log(this.$node, "组件");
   };
 
