@@ -381,6 +381,7 @@
       voteId,
       voteSuccess,
       voteRepeat,
+      joinHost,
       host = ""
     ) {
       if (host === "") {
@@ -400,7 +401,7 @@
       })
         .then(function(res) {
           console.log("返回结果res", res);
-          window.name.joinActivity(postId);
+          window.nase.joinActivity(postId, joinHost);
           window.nase.handleResponse(res, voteSuccess, voteRepeat, "投票");
         })
         .catch(function(err) {
