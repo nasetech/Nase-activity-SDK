@@ -64,7 +64,7 @@
      * @param  {int}       postId      活动的id
      * @param {string}     host
      */
-    userGetCoupon: function(discountId, postId, host = "") {
+    userGetCoupon: function(discountId, postId, activitySuccess, host = "") {
       console.log("领取ID", discountId);
       if (host === "") {
         host = __CONFIG__.host;
@@ -84,7 +84,21 @@
         .then(function(res) {
           console.log("返回结果res", res);
           window.nase.joinActivity(postId);
-          return toast.show("成功领取优惠券");
+          if (res.code === 0) {
+            toast.show("成功领取优惠券");
+          } else if (res.code === 400) {
+            modal.open({
+              title: "领取失败",
+              content: res.msg + "，您已达到领取上限。",
+              onOk: function() {
+                activitySuccess && activitySuccess();
+              }
+            });
+          } else if (resCode === 401) {
+            toast.show("登录失败");
+          } else {
+            toast.show(activity + "失败");
+          }
         })
         .catch(function(err) {
           console.log("返回错误结果err", err);
