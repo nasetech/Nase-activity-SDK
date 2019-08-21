@@ -89,7 +89,7 @@
           } else if (res.code === 400) {
             modal.open({
               title: "领取失败",
-              content: res.msg + "，您已达到领取上限。"
+              content: res.msg + "，您已达到领取上限"
             });
           } else if (resCode === 401) {
             toast.show("登录失败");
@@ -270,21 +270,20 @@
       if (resCode === 0) {
         if (resData.winning) {
           modal.open({
-            title: "抽奖成功",
+            title: " ",
             content:
               "恭喜您，获得了" +
               resData.awards +
-              ", 奖品：" +
-              resData.prize +
-              "。",
+              "，奖品：" +
+              resData.prize,
             onOk: function() {
               lotterySuccess && lotterySuccess();
             }
           });
         } else {
           modal.open({
-            title: "抽奖成功",
-            content: "很遗憾，您没有中奖。",
+            title: " ",
+            content: "很遗憾，您没有中奖",
             onOk: function() {
               lotterySuccess && lotterySuccess();
             }
@@ -292,16 +291,16 @@
         }
       } else if (resCode === 471) {
         modal.open({
-          title: "抽奖失败",
-          content: "您已参与抽奖，请勿重复参与抽奖。",
+          title: " ",
+          content: "您已参与抽奖，请勿重复参与抽奖",
           onOk: function() {
             lotteryRepeat && lotteryRepeat();
           }
         });
       } else if (resCode === 481) {
         modal.open({
-          title: "抽奖失败",
-          content: "抱歉，奖品已抽完。",
+          title: " ",
+          content: "抱歉，奖品已抽完",
         });
       } else if (resCode === 401) {
         toast.show("登录失败");
