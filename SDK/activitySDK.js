@@ -64,7 +64,7 @@
      * @param  {int}       postId      活动的id
      * @param {string}     host
      */
-    userGetCoupon: function(discountId, postId, activitySuccess, host = "") {
+    userGetCoupon: function(discountId, postId, host = "") {
       console.log("领取ID", discountId);
       if (host === "") {
         host = __CONFIG__.host;
@@ -89,10 +89,7 @@
           } else if (res.code === 400) {
             modal.open({
               title: "领取失败",
-              content: res.msg + "，您已达到领取上限。",
-              onOk: function() {
-                activitySuccess && activitySuccess();
-              }
+              content: res.msg + "，您已达到领取上限。"
             });
           } else if (resCode === 401) {
             toast.show("登录失败");
@@ -186,7 +183,7 @@
         return toast.show("id不存在");
       }
       ajax({
-        url: host + "/post/" + postId + "?needEditor=true",
+        url: host + "/post/" + postId + "?needEditor=true&isActivity=true",
         method: "GET",
         headers: {
           Authorization: "TOKEN " + __CONFIG__.token,
@@ -215,7 +212,7 @@
      * @param  {int}       postId  当前抽奖活动的id
      * @param   {function}  callback    自定义抽奖成功后的回调
      */
-    getLotteryInfo: function(postId, callback, host = "") {
+    getLotteryInfo: function(postId, host = "") {
       if (host === "") {
         host = __CONFIG__.host;
       }
@@ -232,12 +229,6 @@
       })
         .then(function(res) {
           console.log("获取抽奖活动信息返回结果res", res);
-          callback &&
-            callback(
-              res.data.metas.find(function(item) {
-                return item.key === "prizeOptions";
-              })
-            );
         })
         .catch(function(err) {
           console.log("获取抽奖活动信息返回结果err", err);
@@ -279,7 +270,7 @@
       if (resCode === 0) {
         if (resData.winning) {
           modal.open({
-            titile: "抽奖成功",
+            title: "抽奖成功",
             content:
               "恭喜您，获得了" +
               resData.awards +
@@ -292,7 +283,7 @@
           });
         } else {
           modal.open({
-            titile: "抽奖成功",
+            title: "抽奖成功",
             content: "很遗憾，您没有中奖。",
             onOk: function() {
               lotterySuccess && lotterySuccess();
@@ -301,11 +292,16 @@
         }
       } else if (resCode === 471) {
         modal.open({
-          titile: "抽奖失败",
+          title: "抽奖失败",
           content: "您已参与抽奖，请勿重复参与抽奖。",
           onOk: function() {
             lotteryRepeat && lotteryRepeat();
           }
+        });
+      } else if (resCode === 481) {
+        modal.open({
+          title: "抽奖失败",
+          content: "抱歉，奖品已抽完。",
         });
       } else if (resCode === 401) {
         toast.show("登录失败");
@@ -445,6 +441,34 @@
         })
         .catch(function(err) {
           console.log("返回错误结果err", err);
+        });
+    },
+    /**
+     * #########################
+     * #### 团购活动相关API ######
+     * #########################
+     */
+    getGoodsId: function(postId, callback, host = "") {
+      host = host === "" ? __CONFIG__.host : host;
+      ajax({
+        url: host + "/post/" + postId + "?needEditor=true",
+        method: "GET",
+        headers: {
+          Authorization: "TOKEN " + __CONFIG__.token,
+          sid: __CONFIG__.sid
+        }
+      })
+        .then(function(res) {
+          console.log("获取goodsId返回结果res", res);
+          callback &&
+            callback(
+              res.data.metas.find(function(item) {
+                return item.key === "goodsId";
+              }).value
+            );
+        })
+        .catch(function(err) {
+          console.log("初始化bg返回结果err", err);
         });
     }
   };
