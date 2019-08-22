@@ -271,11 +271,7 @@
         if (resData.winning) {
           modal.open({
             title: " ",
-            content:
-              "恭喜您，获得了" +
-              resData.awards +
-              "，奖品：" +
-              resData.prize,
+            content: "恭喜您，获得了" + resData.awards,
             onOk: function() {
               lotterySuccess && lotterySuccess();
             }
