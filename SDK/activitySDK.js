@@ -83,8 +83,8 @@
       })
         .then(function(res) {
           console.log("返回结果res", res);
-          window.nase.joinActivity(postId);
           if (res.code === 0) {
+            window.nase.joinActivity(postId);
             toast.show("成功领取优惠券");
           } else if (res.code === 400) {
             modal.open({
@@ -130,8 +130,7 @@
       })
         .then(function(res) {
           console.log("返回结果res", res);
-          window.nase.joinActivity(postId);
-          window.nase.handleResponse(res, signinSuccess, signinRepeat, "签到");
+          window.nase.handleResponse(postId, res, signinSuccess, signinRepeat, "签到");
         })
         .catch(function(err) {
           console.log("返回结果err", err);
@@ -145,9 +144,10 @@
      * @param   {function}  activityRepeat     操作重复后的回调
      * @param   {string}    activity           用户的操作
      */
-    handleResponse: function(res, activitySuccess, activityRepeat, activity) {
+    handleResponse: function(postId, res, activitySuccess, activityRepeat, activity) {
       var resCode = res.code;
       if (resCode === 0) {
+        window.nase.joinActivity(postId, joinHost);
         modal.open({
           title: activity + "成功",
           content: "您已" + activity + "成功",
@@ -257,17 +257,27 @@
       })
         .then(function(res) {
           console.log("抽奖返回结果res", res);
-          window.nase.joinActivity(postId);
-          window.nase.handleLotteryResponse(res, lotterySuccess, lotteryRepeat);
+          window.nase.handleLotteryResponse(
+            postId,
+            res,
+            lotterySuccess,
+            lotteryRepeat
+          );
         })
         .catch(function(err) {
           console.log("抽奖返回结果err", err);
         });
     },
-    handleLotteryResponse: function(res, lotterySuccess, lotteryRepeat) {
+    handleLotteryResponse: function(
+      postId,
+      res,
+      lotterySuccess,
+      lotteryRepeat
+    ) {
       var resCode = res.code;
       var resData = res.data;
       if (resCode === 0) {
+        window.nase.joinActivity(postId);
         if (resData.winning) {
           modal.open({
             title: " ",
@@ -296,7 +306,7 @@
       } else if (resCode === 481) {
         modal.open({
           title: " ",
-          content: "抱歉，奖品已抽完",
+          content: "抱歉，奖品已抽完"
         });
       } else if (resCode === 401) {
         toast.show("登录失败");
@@ -386,7 +396,6 @@
       voteId,
       voteSuccess,
       voteRepeat,
-      joinHost,
       host = ""
     ) {
       if (host === "") {
@@ -406,8 +415,7 @@
       })
         .then(function(res) {
           console.log("返回结果res", res);
-          window.nase.joinActivity(postId, joinHost);
-          window.nase.handleResponse(res, voteSuccess, voteRepeat, "投票");
+          window.nase.handleResponse(postId, res, voteSuccess, voteRepeat, "投票");
         })
         .catch(function(err) {
           console.log("返回错误结果err", err);
