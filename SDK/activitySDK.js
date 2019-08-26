@@ -130,7 +130,13 @@
       })
         .then(function(res) {
           console.log("返回结果res", res);
-          window.nase.handleResponse(postId, res, signinSuccess, signinRepeat, "签到");
+          window.nase.handleResponse(
+            postId,
+            res,
+            signinSuccess,
+            signinRepeat,
+            "签到"
+          );
         })
         .catch(function(err) {
           console.log("返回结果err", err);
@@ -144,10 +150,20 @@
      * @param   {function}  activityRepeat     操作重复后的回调
      * @param   {string}    activity           用户的操作
      */
-    handleResponse: function(postId, res, activitySuccess, activityRepeat, activity) {
+    handleResponse: function(
+      postId,
+      res,
+      activitySuccess,
+      activityRepeat,
+      activity,
+      host = ""
+    ) {
+      if (host === "") {
+        host = __CONFIG__.host;
+      }
       var resCode = res.code;
       if (resCode === 0) {
-        window.nase.joinActivity(postId, joinHost);
+        window.nase.joinActivity(postId, host);
         modal.open({
           title: activity + "成功",
           content: "您已" + activity + "成功",
@@ -402,7 +418,7 @@
         host = __CONFIG__.host;
       }
       ajax({
-        url: host + "/tp/api/v0/vote/to",
+        url: __CONFIG__.host + "/tp/api/v0/vote/to",
         method: "POST",
         headers: {
           Authorization: "TOKEN " + __CONFIG__.token,
@@ -415,7 +431,14 @@
       })
         .then(function(res) {
           console.log("返回结果res", res);
-          window.nase.handleResponse(postId, res, voteSuccess, voteRepeat, "投票");
+          window.nase.handleResponse(
+            postId,
+            res,
+            voteSuccess,
+            voteRepeat,
+            "投票",
+            host
+          );
         })
         .catch(function(err) {
           console.log("返回错误结果err", err);
