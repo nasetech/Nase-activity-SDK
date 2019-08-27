@@ -394,7 +394,11 @@
         .then(function(res) {
           console.log("返回结果res", res);
           callback &&
-            callback(res.data.data.options, res.data.data.optionLimitation);
+            callback(
+              res.data.data.options,
+              res.data.data.selection,
+              res.data.data.optionLimitation
+            );
         })
         .catch(function(err) {
           console.log("返回错误结果err", err);
@@ -431,7 +435,7 @@
       })
         .then(function(res) {
           console.log("返回结果res", res);
-          window.nase.handleResponse(
+          window.nase.handleVoteResponse(
             postId,
             res,
             voteSuccess,
@@ -443,6 +447,48 @@
         .catch(function(err) {
           console.log("返回错误结果err", err);
         });
+    },
+    /**
+     * 用户投票后返回的回调
+     * @param   {obj}       res                调用操作API返回的结果
+     * @param   {function}  activitySuccess    自定义操作成功后的回调
+     * @param   {function}  activityRepeat     操作重复后的回调
+     * @param   {string}    activity           用户的操作
+     */
+    handleVoteResponse: function(
+      postId,
+      res,
+      activitySuccess,
+      activityRepeat,
+      activity,
+      host = ""
+    ) {
+      if (host === "") {
+        host = __CONFIG__.host;
+      }
+      var resCode = res.code;
+      if (resCode === 0) {
+        window.nase.joinActivity(postId, host);
+        modal.open({
+          title: activity + "成功",
+          content: "您已" + activity + "成功",
+          onOk: function() {
+            activitySuccess && activitySuccess();
+          }
+        });
+      } else if (resCode === 400) {
+        modal.open({
+          title: "温馨提示",
+          content: "投票失败，" + res.msg,
+          onOk: function() {
+            activityRepeat && activityRepeat();
+          }
+        });
+      } else if (resCode === 401) {
+        toast.show("登录失败");
+      } else {
+        toast.show(activity + "失败");
+      }
     },
     /**
      * #########################
