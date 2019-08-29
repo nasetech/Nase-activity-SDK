@@ -228,7 +228,7 @@
      * @param  {int}       postId  当前抽奖活动的id
      * @param   {function}  callback    自定义抽奖成功后的回调
      */
-    getLotteryInfo: function(postId, host = "") {
+    getLotteryInfo: function(postId, callback, host = "") {
       if (host === "") {
         host = __CONFIG__.host;
       }
@@ -245,6 +245,7 @@
       })
         .then(function(res) {
           console.log("获取抽奖活动信息返回结果res", res);
+          callback && callback(res);
         })
         .catch(function(err) {
           console.log("获取抽奖活动信息返回结果err", err);
@@ -256,7 +257,7 @@
      * @param   {function}  callback    自定义抽奖成功后的回调
      * @param   {string}    host
      */
-    lottery: function(postId, lotterySuccess, lotteryRepeat, host = "") {
+    lottery: function(postId, isTurnTable = false, callback, host = "") {
       if (host === "") {
         host = __CONFIG__.host;
       }
@@ -273,12 +274,16 @@
       })
         .then(function(res) {
           console.log("抽奖返回结果res", res);
-          window.nase.handleLotteryResponse(
-            postId,
-            res,
-            lotterySuccess,
-            lotteryRepeat
-          );
+          if (!isTurnTable) {
+            window.nase.handleLotteryResponse(
+              postId,
+              res,
+              lotterySuccess,
+              lotteryRepeat
+            );
+          } else {
+            callback && callback(res);
+          }
         })
         .catch(function(err) {
           console.log("抽奖返回结果err", err);
